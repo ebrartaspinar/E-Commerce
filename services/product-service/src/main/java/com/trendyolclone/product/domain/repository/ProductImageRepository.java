@@ -1,0 +1,14 @@
+package com.trendyolclone.product.domain.repository;
+
+import com.trendyolclone.product.domain.model.ProductImage;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+import java.util.UUID;
+
+@Repository
+public interface ProductImageRepository extends JpaRepository<ProductImage, UUID> {
+
+    List<ProductImage> findByProductIdOrderBySortOrder(UUID productId);
+}
