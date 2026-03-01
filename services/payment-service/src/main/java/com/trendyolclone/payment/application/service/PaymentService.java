@@ -15,6 +15,8 @@ import com.trendyolclone.payment.infrastructure.kafka.PaymentEventProducer;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -96,12 +98,14 @@ public class PaymentService {
         return toResponse(payment);
     }
 
+    @Cacheable(value = "payments", key = "#paymentId")
     public PaymentResponse getPayment(UUID paymentId) {
         Payment payment = paymentRepository.findById(paymentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Payment", "id", paymentId));
         return toResponse(payment);
     }
 
+    @Cacheable(value = "payments", key = "'byOrder:' + #orderNumber")
     public PaymentResponse getPaymentByOrderNumber(String orderNumber) {
         Payment payment = paymentRepository.findByOrderNumber(orderNumber)
                 .orElseThrow(() -> new ResourceNotFoundException("Payment", "orderNumber", orderNumber));
@@ -109,6 +113,7 @@ public class PaymentService {
     }
 
     @Transactional
+    @CacheEvict(value = "payments", allEntries = true)
     public PaymentResponse refundPayment(UUID paymentId) {
         Payment payment = paymentRepository.findById(paymentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Payment", "id", paymentId));
