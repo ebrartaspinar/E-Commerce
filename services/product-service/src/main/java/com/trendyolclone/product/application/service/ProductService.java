@@ -18,6 +18,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -60,12 +63,14 @@ public class ProductService {
         return PagedResponse.from(page);
     }
 
+    @Cacheable(value = "products", key = "#id")
     public ProductResponse getProductById(UUID id) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product", "id", id));
         return mapToResponse(product);
     }
 
+    @Cacheable(value = "products", key = "'byCategory:' + #categorySlug + ':page:' + #pageable.pageNumber + ':size:' + #pageable.pageSize")
     public PagedResponse<ProductResponse> getProductsByCategory(String categorySlug, Pageable pageable) {
         Category category = categoryRepository.findBySlug(categorySlug)
                 .orElseThrow(() -> new ResourceNotFoundException("Category", "slug", categorySlug));
@@ -77,6 +82,7 @@ public class ProductService {
     }
 
     @Transactional
+    @CacheEvict(value = "products", allEntries = true)
     public ProductResponse createProduct(UUID sellerId, CreateProductRequest request) {
         Category category = categoryRepository.findById(request.categoryId())
                 .orElseThrow(() -> new ResourceNotFoundException("Category", "id", request.categoryId()));
@@ -125,6 +131,7 @@ public class ProductService {
     }
 
     @Transactional
+    @CacheEvict(value = "products", allEntries = true)
     public ProductResponse updateProduct(UUID sellerId, UUID productId, UpdateProductRequest request) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Product", "id", productId));
@@ -190,6 +197,7 @@ public class ProductService {
     }
 
     @Transactional
+    @CacheEvict(value = "products", key = "#productId")
     public ProductResponse updateStock(UUID sellerId, UUID productId, UpdateStockRequest request) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Product", "id", productId));
@@ -223,6 +231,7 @@ public class ProductService {
     }
 
     @Transactional
+    @CacheEvict(value = "products", allEntries = true)
     public void deleteProduct(UUID sellerId, UUID productId) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Product", "id", productId));

@@ -22,6 +22,7 @@ public class RedisConfig {
     @Bean
     public CacheManager cacheManager(RedisConnectionFactory redisConnectionFactory) {
         RedisCacheConfiguration defaultConfig = RedisCacheConfiguration.defaultCacheConfig()
+                .prefixCacheNameWith("product-service:")
                 .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
                 .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer()))
                 .disableCachingNullValues();
@@ -30,6 +31,7 @@ public class RedisConfig {
         cacheConfigurations.put("products", defaultConfig.entryTtl(Duration.ofMinutes(30)));
         cacheConfigurations.put("categories", defaultConfig.entryTtl(Duration.ofHours(1)));
         cacheConfigurations.put("popular-products", defaultConfig.entryTtl(Duration.ofMinutes(15)));
+        cacheConfigurations.put("reviews", defaultConfig.entryTtl(Duration.ofMinutes(20)));
 
         return RedisCacheManager.builder(redisConnectionFactory)
                 .cacheDefaults(defaultConfig.entryTtl(Duration.ofMinutes(30)))

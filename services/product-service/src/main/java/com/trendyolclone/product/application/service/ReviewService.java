@@ -16,6 +16,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,6 +34,7 @@ public class ReviewService {
     private final ReviewRepository reviewRepository;
     private final ProductRepository productRepository;
 
+    @Cacheable(value = "reviews", key = "#productId + ':page:' + #pageable.pageNumber + ':size:' + #pageable.pageSize")
     public PagedResponse<ReviewResponse> getProductReviews(UUID productId, Pageable pageable) {
         Page<ReviewResponse> page = reviewRepository
                 .findByProductIdAndStatus(productId, ReviewStatus.APPROVED, pageable)
@@ -39,6 +43,10 @@ public class ReviewService {
     }
 
     @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = "reviews", allEntries = true),
+            @CacheEvict(value = "products", key = "#productId")
+    })
     public ReviewResponse createReview(UUID userId, UUID productId, CreateReviewRequest request) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Product", "id", productId));

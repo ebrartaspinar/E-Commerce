@@ -7,6 +7,7 @@ import com.trendyolclone.product.domain.repository.CategoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +23,7 @@ public class CategoryService {
 
     private final CategoryRepository categoryRepository;
 
+    @Cacheable(value = "categories", key = "'tree'")
     public List<CategoryResponse> getCategoryTree() {
         List<Category> rootCategories = categoryRepository.findByParentCategoryIsNullAndIsActiveTrue();
         return rootCategories.stream()
@@ -29,6 +31,7 @@ public class CategoryService {
                 .toList();
     }
 
+    @Cacheable(value = "categories", key = "#slug")
     public CategoryResponse getCategoryBySlug(String slug) {
         Category category = categoryRepository.findBySlug(slug)
                 .orElseThrow(() -> new ResourceNotFoundException("Category", "slug", slug));
