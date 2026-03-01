@@ -13,6 +13,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,6 +38,7 @@ public class NotificationService {
     }
 
     @Transactional
+    @CacheEvict(value = "unread-count", key = "#userId")
     public NotificationResponse markAsRead(UUID userId, UUID notificationId) {
         Notification notification = notificationRepository.findById(notificationId)
                 .orElseThrow(() -> new ResourceNotFoundException("Notification", "id", notificationId));
@@ -53,6 +56,7 @@ public class NotificationService {
     }
 
     @Transactional
+    @CacheEvict(value = "unread-count", key = "#userId")
     public void markAllAsRead(UUID userId) {
         List<Notification> unreadNotifications = notificationRepository.findByUserIdAndIsReadFalse(userId);
 
@@ -62,11 +66,13 @@ public class NotificationService {
         log.info("Marked {} notifications as read for userId={}", unreadNotifications.size(), userId);
     }
 
+    @Cacheable(value = "unread-count", key = "#userId")
     public long getUnreadCount(UUID userId) {
         return notificationRepository.countByUserIdAndIsReadFalse(userId);
     }
 
     @Transactional
+    @CacheEvict(value = "unread-count", key = "#userId")
     public NotificationResponse createNotification(UUID userId, NotificationChannel channel, String title, String content) {
         Notification notification = Notification.builder()
                 .userId(userId)
