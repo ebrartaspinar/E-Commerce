@@ -10,6 +10,7 @@ import com.trendyolclone.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,6 +35,7 @@ public class AddressService {
                 .toList();
     }
 
+    @CacheEvict(value = "users", key = "#userId")
     public AddressResponse addAddress(UUID userId, AddressRequest request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
@@ -59,6 +61,7 @@ public class AddressService {
         return mapToResponse(savedAddress);
     }
 
+    @CacheEvict(value = "users", key = "#userId")
     public AddressResponse updateAddress(UUID userId, UUID addressId, AddressRequest request) {
         Address address = addressRepository.findByUserIdAndId(userId, addressId)
                 .orElseThrow(() -> new ResourceNotFoundException("Address", "id", addressId));
@@ -81,6 +84,7 @@ public class AddressService {
         return mapToResponse(updatedAddress);
     }
 
+    @CacheEvict(value = "users", key = "#userId")
     public void deleteAddress(UUID userId, UUID addressId) {
         Address address = addressRepository.findByUserIdAndId(userId, addressId)
                 .orElseThrow(() -> new ResourceNotFoundException("Address", "id", addressId));
