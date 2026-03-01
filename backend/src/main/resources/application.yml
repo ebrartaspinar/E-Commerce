@@ -1,0 +1,42 @@
+spring:
+  application:
+    name: stardrop-shop
+  datasource:
+    url: jdbc:postgresql://localhost:5433/stardropdb
+    driver-class-name: org.postgresql.Driver
+    username: postgres
+    password: postgres123
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  data:
+    redis:
+      host: localhost
+      port: 6379
+  cache:
+    type: redis
+    redis:
+      time-to-live: 600000
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    consumer:
+      group-id: stardrop-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+
+server:
+  port: 8080
+
+jwt:
+  secret: dHJlbmR5b2xDbG9uZVNlY3JldEtleUZvckpXVEF1dGhlbnRpY2F0aW9uMjAyNA==
+  expiration: 86400000
