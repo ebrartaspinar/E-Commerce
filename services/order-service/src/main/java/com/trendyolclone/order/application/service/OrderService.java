@@ -14,6 +14,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,6 +40,7 @@ public class OrderService {
     private final OrderEventProducer orderEventProducer;
 
     @Transactional
+    @CacheEvict(value = "order-lists", allEntries = true)
     public OrderResponse createOrder(UUID userId, CreateOrderRequest request) {
         String orderNumber = generateOrderNumber();
 
@@ -93,6 +97,7 @@ public class OrderService {
         return toOrderResponse(savedOrder);
     }
 
+    @Cacheable(value = "orders", key = "#orderNumber")
     public OrderResponse getOrder(UUID userId, String orderNumber) {
         Order order = orderRepository.findByOrderNumber(orderNumber)
                 .orElseThrow(() -> new ResourceNotFoundException("Order", "orderNumber", orderNumber));
@@ -104,6 +109,7 @@ public class OrderService {
         return toOrderResponse(order);
     }
 
+    @Cacheable(value = "order-lists", key = "#userId + ':page:' + #pageable.pageNumber + ':size:' + #pageable.pageSize")
     public PagedResponse<OrderResponse> getOrders(UUID userId, Pageable pageable) {
         Page<Order> orderPage = orderRepository.findByUserId(userId, pageable);
         Page<OrderResponse> responsePage = orderPage.map(this::toOrderResponse);
@@ -111,6 +117,10 @@ public class OrderService {
     }
 
     @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = "orders", key = "#orderNumber"),
+            @CacheEvict(value = "order-lists", allEntries = true)
+    })
     public OrderResponse cancelOrder(UUID userId, String orderNumber, CancelOrderRequest request) {
         Order order = orderRepository.findByOrderNumber(orderNumber)
                 .orElseThrow(() -> new ResourceNotFoundException("Order", "orderNumber", orderNumber));
@@ -145,6 +155,10 @@ public class OrderService {
     }
 
     @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = "orders", key = "#orderNumber"),
+            @CacheEvict(value = "order-lists", allEntries = true)
+    })
     public void updatePaymentStatus(String orderNumber, OrderStatus newStatus, UUID paymentId) {
         Order order = orderRepository.findByOrderNumber(orderNumber)
                 .orElseThrow(() -> new ResourceNotFoundException("Order", "orderNumber", orderNumber));
