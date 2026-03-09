@@ -1,0 +1,43 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=Nunito:wght@300;400;600;700;800&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply font-body bg-cozy-cream text-cozy-dark;
+  }
+}
+
+@layer components {
+  .pixel-border {
+    @apply border-3 border-cozy-brown;
+  }
+  .pixel-card {
+    @apply pixel-border bg-white shadow-pixel rounded-none p-4;
+  }
+  .pixel-input {
+    @apply pixel-border bg-white px-3 py-2 font-body text-cozy-dark placeholder-gray-400 focus:outline-none focus:border-primary-500 focus:ring-0 w-full;
+  }
+  .pixel-badge {
+    @apply inline-flex items-center px-2 py-0.5 font-pixel text-xs border-2 border-cozy-brown;
+  }
+  .page-container {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6;
+  }
+  .section-title {
+    @apply font-pixel text-lg text-cozy-dark mb-4;
+  }
+}
+
+/* Pixel scrollbar */
+::-webkit-scrollbar {
+  width: 12px;
+}
+::-webkit-scrollbar-track {
+  background: #FFF8F0;
+}
+::-webkit-scrollbar-thumb {
+  background: #8B6F47;
+  border: 2px solid #FFF8F0;
+}
