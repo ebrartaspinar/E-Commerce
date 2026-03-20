@@ -1,0 +1,46 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: 'Press Start 2P', cursive;
+  font-size: 10px;
+  background-color: #2d1b00;
+  background-image:
+    radial-gradient(circle at 20% 50%, rgba(76, 175, 80, 0.05) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(139, 195, 74, 0.05) 0%, transparent 50%);
+  image-rendering: pixelated;
+}
+
+/* Pixel art border utility */
+.pixel-border {
+  border: 3px solid #5c3a1e;
+  box-shadow:
+    inset -2px -2px 0 #3d2510,
+    inset 2px 2px 0 #8b6914,
+    0 0 0 2px #2d1b00;
+}
+
+.pixel-btn {
+  font-family: 'Press Start 2P', cursive;
+  font-size: 9px;
+  background: linear-gradient(180deg, #e8a83e 0%, #c47b2b 100%);
+  border: 2px solid #5c3a1e;
+  box-shadow: inset -1px -1px 0 #8b5e14, inset 1px 1px 0 #f0c060;
+  color: #2d1b00;
+  transition: all 0.1s;
+}
+.pixel-btn:hover {
+  background: linear-gradient(180deg, #f0c060 0%, #e8a83e 100%);
+  transform: translateY(-1px);
+}
+.pixel-btn:active {
+  transform: translateY(1px);
+  box-shadow: inset 1px 1px 0 #8b5e14, inset -1px -1px 0 #f0c060;
+}
+.pixel-btn:disabled {
+  background: #666;
+  border-color: #444;
+  color: #999;
+  box-shadow: none;
+}
